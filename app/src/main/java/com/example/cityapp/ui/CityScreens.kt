@@ -74,11 +74,11 @@ fun CityListScreen(
 
     if (showFilterDialog) {
         FilterDialog(
-            currentMinPop = uiState.minPopulation,
+            currentMinPop = uiState.maxPopulation,
             currentSort = uiState.sortBy,
             onDismiss = { showFilterDialog = false },
-            onApply = { minPop, sort ->
-                viewModel.updateMinPopulation(minPop)
+            onApply = { maxPop, sort ->
+                viewModel.updateMaxPopulation(maxPop)
                 viewModel.updateSortOption(sort)
                 showFilterDialog = false
             },

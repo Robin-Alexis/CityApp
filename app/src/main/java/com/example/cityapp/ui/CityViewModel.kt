@@ -13,7 +13,7 @@ data class CityUiState(
     val cities: List<City> = emptyList(),
     val favorites: Set<String> = emptySet(),
     val searchQuery: String = "",
-    val minPopulation: Int = 0,
+    val maxPopulation: Int = 0,
     val sortBy: SortOption = SortOption.NAME
 )
 
@@ -25,30 +25,30 @@ class CityViewModel(
 ) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow("")
-    private val _minPopulation = MutableStateFlow(0)
+    private val _maxPopulation = MutableStateFlow(0)
     private val _sortBy = MutableStateFlow(SortOption.NAME)
 
     val uiState: StateFlow<CityUiState> = combine(
         repository.getAllCities(),
         favoriteStore.favorites,
         _searchQuery,
-        _minPopulation,
+        _maxPopulation,
         _sortBy
-    ) { cities, favorites, query, minPop, sort ->
+    ) { cities, favorites, query, maxPop, sort ->
         val filtered = cities
             .filter { it.name.contains(query, ignoreCase = true) }
-            .filter { it.population >= minPop }
+            .filter { it.population >= maxPop }
             .let { list ->
                 when (sort) {
                     SortOption.NAME -> list.sortedBy { it.name }
                     SortOption.POPULATION -> list.sortedByDescending { it.population }
                 }
             }
-        CityUiState(filtered, favorites, query, minPop, sort)
+        CityUiState(filtered, favorites, query, maxPop, sort)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), CityUiState())
 
     fun updateSearchQuery(query: String) { _searchQuery.value = query }
-    fun updateMinPopulation(min: Int) { _minPopulation.value = min }
+    fun updateMaxPopulation(max: Int) { _maxPopulation.value = max }
     fun updateSortOption(option: SortOption) { _sortBy.value = option }
 
     fun addCity(name: String, population: Int, country: String) {
@@ -71,7 +71,7 @@ class CityViewModel(
 
     fun resetFilters() {
         _searchQuery.value = ""
-        _minPopulation.value = 0
+        _maxPopulation.value = 0
         _sortBy.value = SortOption.NAME
     }
 
